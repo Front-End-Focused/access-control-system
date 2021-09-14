@@ -6,32 +6,61 @@ import doorclosed from "./assets/door-closed.png";
 class App extends React.Component {
   state = {
     door: false,
+    accepted: null,
+    rejected: null,
   };
 
-  handleVisitor(id) {
+  async handleVisitor(id) {
     if (this.state.door) return;
 
     if (this.props.whilelist.includes(id)) {
-      this.openDoor();
+      this.setState({
+        accepted: id,
+        door: true,
+      })
       setTimeout(() => {
-        this.closeDoor();
+        this.setState({
+          accepted: null,
+          door: false,
+        })
+      }, 1500);
+    } else if (await this.handleNewVisitor(id)) {
+      this.setState({
+        accepted: id,
+        door: true,
+      })
+      setTimeout(() => {
+        this.setState({
+          accepted: null,
+          door: false,
+        })
       }, 1500);
     } else {
-      this.closeDoor();
+      this.setState({
+        rejected: id,
+        door: false,
+      })
+      setTimeout(() => {
+        this.setState({
+          rejected: null,
+        })
+      }, 1500);
     }
   }
 
-  openDoor() {
-    this.setState({ door: true });
-  }
-
-  closeDoor() {
-    this.setState({ door: false });
+  async handleNewVisitor(id) {
+    try {
+      const response = await fetch(`https://run.mocky.io/v3/0403127a-302a-4a3c-8728-c93c982bd71b`);
+      const data = await response.json();
+      return (data.whitelist.includes(id));
+    } catch (error) {
+      console.error(error.message);
+    }
   }
 
   render() {
     const { visitors } = this.props;
-    const { door } = this.state;
+    const { door, accepted, rejected } = this.state;
 
     return (
       <div className="control">
@@ -45,6 +74,7 @@ class App extends React.Component {
               alt={visitor.id}
               key={visitor.id}
               role="button"
+              className={`${accepted === visitor.id ? "accepted" : ""} ${rejected === visitor.id ? "rejected" : ""}`}
               onClick={() => this.handleVisitor(visitor.id)}
             />
           ))}

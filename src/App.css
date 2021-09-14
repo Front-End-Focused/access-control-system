@@ -13,6 +13,16 @@
 .row img {
   display: inline-block;
   width: 60px;
-  margin: 10px;
+  margin: 5px;
   cursor: pointer;
+  border: 2px solid white;
+  border-radius: 100%;
+}
+
+.row img.accepted {
+  border-color: rgb(38, 189, 38);
+}
+
+.row img.rejected {
+  border-color: red;
 }
