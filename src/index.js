@@ -1,5 +1,6 @@
 import React from "react";
 import ReactDOM from "react-dom";
+import AppFunc from "./AppFunc"
 import "./index.css";
 import App from "./App";
 import reportWebVitals from "./reportWebVitals";
@@ -41,7 +42,7 @@ const whilelist = [2, 3, 4, 5];
 
 ReactDOM.render(
   <React.StrictMode>
-    <App visitors={visitors} whilelist={whilelist} />
+    <AppFunc visitors={visitors} whilelist={whilelist} />
   </React.StrictMode>,
   document.getElementById("root")
 );
