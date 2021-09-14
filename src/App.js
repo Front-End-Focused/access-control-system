@@ -6,33 +6,60 @@ import doorclosed from "./assets/door-closed.png";
 class App extends React.Component {
   state = {
     door: false,
+    list: this.props.whitelist,
+    accepted: null,
+    rejected: null,
   };
+
 
   handleVisitor(id) {
     if (this.state.door) return;
-
-    if (this.props.whilelist.includes(id)) {
-      this.openDoor();
-      setTimeout(() => {
-        this.closeDoor();
-      }, 1500);
+    if (this.state.list.includes(id)) {
+      this.checkVisitorInList(id)
     } else {
-      this.closeDoor();
+////////////////////////////////////////////
+      this.getActual(id)
     }
   }
 
-  openDoor() {
-    this.setState({ door: true });
+  checkVisitorInList(id) {
+      this.setState({
+        accepted: id,
+        door: true,
+      });
+      setTimeout(() => {
+        this.setState({
+          accepted: null,
+          door: false,
+        });
+      }, 1500);
   }
 
-  closeDoor() {
-    this.setState({ door: false });
+  getActual = async (id) => {
+    const list = await this.props.getActualList()
+    this.setState({
+      list: list.whitelist,
+    })
+    if (this.state.list.includes(id)) {
+      this.checkVisitorInList(id)
+    } else {
+      this.setState({
+        rejected: id,
+        door: false,
+      })
+      setTimeout(() => {
+        this.setState({
+          rejected: null,
+        });
+      }, 1500);
+    }
   }
 
+  
   render() {
     const { visitors } = this.props;
-    const { door } = this.state;
-
+    const { door, accepted, rejected } = this.state;
+    
     return (
       <div className="control">
         <div className="door-frame">
@@ -45,6 +72,9 @@ class App extends React.Component {
               alt={visitor.id}
               key={visitor.id}
               role="button"
+              className={`${accepted === visitor.id ? "accepted" : ""} ${
+                rejected === visitor.id ? "rejected" : ""
+              }`}
               onClick={() => this.handleVisitor(visitor.id)}
             />
           ))}
