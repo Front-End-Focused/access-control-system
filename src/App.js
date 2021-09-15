@@ -8,23 +8,13 @@ class App extends React.Component {
     door: false,
     accepted: null,
     rejected: null,
+    whilelist: this.props.whilelist
   };
 
   async handleVisitor(id) {
     if (this.state.door) return;
 
-    if (this.props.whilelist.includes(id)) {
-      this.setState({
-        accepted: id,
-        door: true,
-      })
-      setTimeout(() => {
-        this.setState({
-          accepted: null,
-          door: false,
-        })
-      }, 1500);
-    } else if (await this.handleNewVisitor(id)) {
+    if (this.state.whilelist.includes(id)) {
       this.setState({
         accepted: id,
         door: true,
@@ -36,25 +26,35 @@ class App extends React.Component {
         })
       }, 1500);
     } else {
-      this.setState({
-        rejected: id,
-        door: false,
-      })
-      setTimeout(() => {
-        this.setState({
-          rejected: null,
-        })
-      }, 1500);
-    }
-  }
-
-  async handleNewVisitor(id) {
-    try {
-      const response = await fetch(`https://run.mocky.io/v3/0403127a-302a-4a3c-8728-c93c982bd71b`);
-      const data = await response.json();
-      return (data.whitelist.includes(id));
-    } catch (error) {
-      console.error(error.message);
+      try {
+        const response = await fetch(`https://run.mocky.io/v3/0403127a-302a-4a3c-8728-c93c982bd71b`);
+        const data = await response.json();
+        if (data.whitelist.includes(id)) {
+          this.setState({
+            accepted: id,
+            door: true,
+            whilelist: data.whitelist,
+          })
+          setTimeout(() => {
+            this.setState({
+              accepted: null,
+              door: false,
+            })
+          }, 1500);
+        } else {
+          this.setState({
+            rejected: id,
+            door: false,
+          })
+          setTimeout(() => {
+            this.setState({
+              rejected: null,
+            })
+          }, 1500);
+        }
+      } catch (error) {
+        console.error(error.message);
+      }
     }
   }
 
